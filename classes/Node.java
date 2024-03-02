@@ -3,27 +3,28 @@ package classes;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
+public class Node implements Comparable<Node> {
     // Id for readability of result purposes
-    private T id;//é basicamente o nomedovértice, no caso vai ser string
+    private String id;//é basicamente o nomedovértice, no caso vai ser string
     // Parent in the path
-    public Node<T> parent = null;
-    public List<Edge> neighbors;//vizinhos deles, se for grafo não orientado o vizinho tem este como vizinho também.
+    public Node parent = null;
+    public List<Edge> vizinhos
+    ;//vizinhos deles, se for grafo não orientado o vizinho tem este como vizinho também.
 
     // Evaluation functions
     private double f = Double.MAX_VALUE;
     private double g = Double.MAX_VALUE;
     // Hardcoded heuristic
-    private double h; //heuristica!
+    private double heuristica; //heuristica!
 
-    public Node(T id,double h){
-          this.h = h;
+    public Node(String id,double h){
+          this.heuristica = h;
           this.id = id;
-          this.neighbors = new ArrayList<>();
+          this.vizinhos = new ArrayList<>();
     }
     
     
-    public Node(T id) {
+    public Node(String id) {
     	this(id, Double.MAX_VALUE);
     }
     
@@ -45,27 +46,31 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
 
 
 	public double getH() {
-		return h;
+		return heuristica;
 	}
 
 
 	public void setH(double h) {
-		this.h = h;
+		this.heuristica = h;
 	}
 
 
-	public T getId() {
+	public String getId() {
 		return id;
+	}
+	
+	public Aresta[] getArestas(){
+		return null;
 	}
 
 
 	@Override
-    public int compareTo(Node<T> n) {
+    public int compareTo(Node n) {
           return Double.compare(this.f, n.f);
     }
 
     public  class Edge {
-          Edge(int weight,Node<T> node){
+          Edge(int weight,Node node){
                 this.weight = weight;
                 this.node = node;
           }
@@ -73,34 +78,28 @@ public class Node<T extends Comparable<T>> implements Comparable<Node<T>> {
        
 
           public int weight;
-          public Node<T> node;
+          public Node node;
           
         
     }
-    
-    
-    public List<Node<T>> getNeighbors(){
-    	for (Edge edge : neighbors) {
-			
-		}
-    }
+    	
     
     
 
     @Override
 	public boolean equals(Object obj) {
-		Node<T> n = (Node<T>) obj;
+		Node n = (Node) obj;
 		return this.id.equals(n.id);
 	}
 
 
-	public void addBranch(int weight, Node<T> node){
+	public void addBranch(int weight, Node node){
           Edge newEdge = new Edge(weight, node);
-          neighbors.add(newEdge);
+          vizinhos.add(newEdge);
     }
 
-    public double calculateHeuristic(Node<T> target){
-          return this.h;
+    public double calculateHeuristic(Node target){
+          return this.heuristica;
     }
 
 

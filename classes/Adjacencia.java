@@ -1,15 +1,15 @@
 package classes;
 
 //Classe responsável por armazenar um elemento adjacente a um vértice.
-public class Adjacencia <T extends Comparable<T>> implements Comparable<Adjacencia<T>>{
+public class Adjacencia  implements Comparable<Adjacencia>{
 
-	private T vertice;//vértice a ser armazenado.
+	private String vertice;//vértice a ser armazenado.
 	private Integer peso;
 	
 	//Construtor de uma adjacencia.
 	//Pré-condiçoes: v >= 0, peso != null.
 	//Pós-condições: nenhuma
-	public Adjacencia(T v, Integer peso) {
+	public Adjacencia(String v, Integer peso) {
 		super();
 		this.vertice = v;
 		this.peso = peso;
@@ -18,7 +18,7 @@ public class Adjacencia <T extends Comparable<T>> implements Comparable<Adjacenc
 	//Obtém o vértice armazenado neste elemento adjacente.
 	//Pré-condiçoes: nenhuma.
 	//Pós-condições: vertíce armazenado.
-	public T getV() {
+	public String getV() {
 		return vertice;
 	}
 
@@ -33,7 +33,7 @@ public class Adjacencia <T extends Comparable<T>> implements Comparable<Adjacenc
 	//Pré-condições: arg0 != null.
 	//Pós-condições: -1 se menor, 1 se maior e 0 se iguais.
 	@Override
-	public int compareTo(Adjacencia<T> arg0) {
+	public int compareTo(Adjacencia arg0) {
 		// TODO Auto-generated method stub
 		return this.vertice.compareTo(arg0.vertice);
 	}

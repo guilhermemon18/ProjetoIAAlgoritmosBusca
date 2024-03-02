@@ -14,13 +14,13 @@ import java.util.Scanner;
 public class Algoritmos  {
 	private String verticeOrigem;
 	private String verticeDestino;
-	private Grafo<String> grafo;
-	private List<Aresta<String>> heuristicas;
+	private Grafo grafo;
+	private List<Aresta> heuristicas;
 
 	//Realiza a leitura do arquivo e seta as configurações no construtor.
 	public Algoritmos(String nomeArquivo) throws IOException {
-		this.grafo = new Grafo<String>(true);
-		this.heuristicas = new LinkedList<Aresta<String>>();
+		this.grafo = new Grafo(true);
+		this.heuristicas = new LinkedList<Aresta>();
 		BufferedReader buffRead = new BufferedReader(new InputStreamReader(new FileInputStream(nomeArquivo), "UTF-8"));
 		String linha = buffRead.readLine();
 
@@ -35,21 +35,21 @@ public class Algoritmos  {
 				String vertices[] = parenteses.split(",");
 				String verticeV = vertices[0].trim();
 				String verticeW = vertices[1].trim();
-				Integer distancia = Integer.valueOf(vertices[2].trim());
+				Integer heuristica = Integer.valueOf(vertices[2].trim());
 				//System.out.println("Vertice v:" + verticeV);
 				if(verticeW.equalsIgnoreCase(verticeDestino) ){//|| verticeV.equalsIgnoreCase(verticeDestino)) {
-					grafo.getNode(verticeV).setH(distancia);
+					grafo.getNode(verticeV).setH(heuristica);
 					//grafo.getNode(verticeW).setH(distancia);
 				}
-				heuristicas.add(new Aresta<String>(verticeV,verticeW,distancia));
+				heuristicas.add(new Aresta(verticeV,verticeW,heuristica));
 
 			}else if(nome.equalsIgnoreCase("pode_ir")) {
 				String vertices[] = parenteses.split(",");
 				String verticeV = vertices[0].trim();
 				String verticeW = vertices[1].trim();
 				Integer distancia = Integer.valueOf(vertices[2].trim());
-				grafo.inserir(new Aresta<String>(verticeV,verticeW,distancia));
-				grafo.inserir(new Node<String>(verticeV),new Node<String>(verticeW) , distancia);
+				grafo.inserir(new Aresta(verticeV,verticeW,distancia));
+				grafo.inserir(new Node(verticeV),new Node(verticeW) , distancia);
 			}
 			else if(nome.equalsIgnoreCase("ponto_inicial")) {
 				verticeOrigem = parenteses;
@@ -71,17 +71,17 @@ public class Algoritmos  {
 	public float piorSolucaoDFS() {
 		long tempoInicial = System.currentTimeMillis();
 		//grafo.imprimirGrafo();
-		List<String> l = grafo.DFS(this.verticeOrigem,this.verticeDestino);//retorna a lista de pontos visitados
+		List<String> listaCaminho = grafo.DFS(this.verticeOrigem,this.verticeDestino);//retorna a lista de pontos visitados
 		float tempoFinal = ( (float) (System.currentTimeMillis() - tempoInicial)/1000);
 		System.out.println("Nós do trajeto: ");
-		for (String string : l) {
+		for (String string : listaCaminho) {
 			System.out.print("(" + string + ")" + " ");
 		}
 		System.out.println();
-		List<Aresta<String>> arestas = new LinkedList<Aresta<String>>();
+		List<Aresta> arestas = new LinkedList<Aresta>();
 		//forma as arestas que foram percorridas
-		for (int i = 0; i < l.size() - 1; i++) {
-			arestas.add(grafo.getAresta(l.get(i),l.get(i+1)));
+		for (int i = 0; i < listaCaminho.size() - 1; i++) {
+			arestas.add(grafo.getAresta(listaCaminho.get(i),listaCaminho.get(i+1)));
 		}
 		//desenha o grafo com o percorrimento
 		grafo.desenhaGrafo("piorSolucaoDFS", arestas);
@@ -91,9 +91,9 @@ public class Algoritmos  {
 
 	public float melhorSolucaoAEstrela(){
 		long tempoInicial = System.currentTimeMillis();
-		Node<String> n = aStar();
+		Node n = aStar();
 		float tempoFinal = ( (float) (System.currentTimeMillis() - tempoInicial)/1000);
-		List<Aresta<String>> arestas = new LinkedList<Aresta<String>>();
+		List<Aresta> arestas = new LinkedList<Aresta>();
 		//forma as arestas que foram percorridas
 		if(n==null)
 			return tempoFinal;
@@ -123,25 +123,25 @@ public class Algoritmos  {
 	}
 
 
-	public  Node<String> aStar(){
+	public  Node aStar(){
 		System.out.println("A Star!");
-		Node<String> start = this.grafo.getNode(this.verticeOrigem),target = this.grafo.getNode(this.verticeDestino);
-		PriorityQueue<Node<String>> closedList = new PriorityQueue<>();
-		PriorityQueue<Node<String>> openList = new PriorityQueue<>();
+		Node start = this.grafo.getNode(this.verticeOrigem),target = this.grafo.getNode(this.verticeDestino);
+		PriorityQueue<Node> closedList = new PriorityQueue<>();
+		PriorityQueue<Node> openList = new PriorityQueue<>();
 
 		start.setF(start.getG() + start.calculateHeuristic(target));
 		openList.add(start);
 
 		while(!openList.isEmpty()){
-			Node<String> n = openList.peek();
+			Node n = openList.peek();
 			System.out.println("Node sendo analisado: " + n.getId());
 			if(n.equals(target)){
 				System.out.println("Chegou ao destino!");
 				return n;
 			}
 			//percorre os vizinhos do nó atual.
-			for(Node<String>.Edge edge : n.neighbors){
-				Node<String> m = edge.node;
+			for(Node.Edge edge : n.vizinhos){
+				Node m = edge.node;
 				
 				double totalWeight = n.getG() + edge.weight;
 				if(!openList.contains(m) && !closedList.contains(m)){
@@ -172,20 +172,21 @@ public class Algoritmos  {
 		return null;
 	}
 	
-	public bellmanFord() {
+	public float bellmanFord() {
 		long tempoInicial = System.currentTimeMillis();
 		//grafo.imprimirGrafo();
-		List<String> l = grafo.Bellman_Ford(this.verticeOrigem,this.verticeDestino);//retorna a lista de pontos visitados
+		List<String> listaCaminho = new LinkedList<String>();
+		grafo.Bellman_Ford(this.verticeOrigem,this.verticeDestino,listaCaminho);//retorna a lista de pontos visitados
 		float tempoFinal = ( (float) (System.currentTimeMillis() - tempoInicial)/1000);
 		System.out.println("Nós do trajeto: ");
-		for (String string : l) {
+		for (String string : listaCaminho) {
 			System.out.print("(" + string + ")" + " ");
 		}
 		System.out.println();
-		List<Aresta<String>> arestas = new LinkedList<Aresta<String>>();
+		List<Aresta> arestas = new LinkedList<Aresta>();
 		//forma as arestas que foram percorridas
-		for (int i = 0; i < l.size() - 1; i++) {
-			arestas.add(grafo.getAresta(l.get(i),l.get(i+1)));
+		for (int i = 0; i < listaCaminho.size() - 1; i++) {
+			arestas.add(grafo.getAresta(listaCaminho.get(i),listaCaminho.get(i+1)));
 		}
 		//desenha o grafo com o percorrimento
 		grafo.desenhaGrafo("bellmanFord", arestas);
@@ -217,8 +218,9 @@ public class Algoritmos  {
 			System.out.println("Escolha o algoritmo para: " + fileName);
 			System.out.println("1.Pior Solução: Busca em Profundidade (DFS).");
 			System.out.println("2.Melhor Solução: A Estrela (A*).");
-			System.out.println("3.Mudar arquivo.");
-			System.out.println("4.Sair.");
+			System.out.println("3.Bônus: Bellman_Ford.");
+			System.out.println("4.Mudar arquivo.");
+			System.out.println("5.Sair.");
 			option = c.nextInt();
 
 
@@ -231,6 +233,9 @@ public class Algoritmos  {
 				System.out.println("tempo:"+algoritmos.melhorSolucaoAEstrela()+ " segundos");
 				break;
 			case 3:
+				System.out.println("tempo:"+algoritmos.bellmanFord()+ " segundos");
+				break;
+			case 4:
 				System.out.println("Digite o nome do arquivo a processar!");
 				c.nextLine();
 				String fileNameAux = c.nextLine();
@@ -247,7 +252,7 @@ public class Algoritmos  {
 					fileNameAux = c.nextLine();
 				}
 				break;
-			case 4:
+			case 5:
 				System.out.println("Programa terminado");
 				break;
 			default:

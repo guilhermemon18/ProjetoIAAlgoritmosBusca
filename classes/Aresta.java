@@ -1,16 +1,16 @@
 package classes;
 
 //Classe que representa uma Aresta.
-public class Aresta <T extends Comparable<T>> implements Comparable<Aresta<T>> {
+public class Aresta implements Comparable<Aresta> {
 
-	private T v;
-	private T w;
+	private String v;
+	private String w;
 	private Integer peso;
 	
 	//Construtor.
 	//Pré-condições: v >= 0, w >= 0, peso != null.
 	//Pós-condições: nenhuma.
-	public Aresta(T v, T w, Integer peso) {
+	public Aresta(String v, String w, Integer peso) {
 		this.v = v;
 		this.w = w;
 		this.peso = peso;
@@ -19,14 +19,14 @@ public class Aresta <T extends Comparable<T>> implements Comparable<Aresta<T>> {
 	//Obtém o vértice v da aresta.
 	//Pré-condições: nenhuma.
 	//Pós-condições: vértice v.
-	public T getV() {
+	public String getV() {
 		return v;
 	}
 
 	//Obtém o vértice w da aresta.
 	//Pré-condições: nenhuma.
 	//Pós-condições: vértice w.
-	public T getW() {
+	public String getW() {
 		return w;
 	}
 
@@ -49,7 +49,7 @@ public class Aresta <T extends Comparable<T>> implements Comparable<Aresta<T>> {
 	//Pré-condições: arg0 != null.
 	//Pós-condições: -1 se for menor, 1 se for maior e 0 se forem iguais.
 	@Override
-	public int compareTo(Aresta<T> arg0) {
+	public int compareTo(Aresta arg0) {
 		if(this.peso < arg0.peso) {
 			return -1;
 		}else if(this.peso > arg0.peso) {
@@ -63,10 +63,11 @@ public class Aresta <T extends Comparable<T>> implements Comparable<Aresta<T>> {
 	//Pós-condições: true se iguais, false se diferentes.
 	@Override
 	public boolean equals(Object obj) {
-		Aresta<T> a = (Aresta<T>) obj;
+		Aresta a = (Aresta) obj;
 		return (this.v.equals(a.v) && this.w.equals(a.w) && this.peso.equals(a.peso));
 	}
-	
+
+
 	
 	
 	

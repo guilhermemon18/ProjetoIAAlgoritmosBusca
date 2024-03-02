@@ -26,22 +26,22 @@ import guru.nidi.graphviz.model.MutableGraph;
 enum Cor {BRANCO,CINZA,PRETO};//enumerado para as cores dos algoritmos DFS e BFS.
 
 //Classe que representa um grafo.
-public class Grafo <T extends Comparable<T>>{
-	private HashMap<T,List<Adjacencia<T>>> verticesOld;
+public class Grafo {
+	private HashMap<String,List<Adjacencia>> verticesOld;
 
 
 	private Integer nroVertices;
 	private boolean orientado;
 	private Integer timestamp = 0;
-	private HashMap<T,Cor> c;
+	private HashMap<String,Cor> c;
 	//private Cor c[];
-	private HashMap<T, Node<T>> vertices;
-	private HashMap<T,T> pi; //Indica que T(value) precede T(key) no grafo de Busca.
+	private HashMap<String, Node> vertices;
+	private HashMap<String,String> pi; //Indica que String(value) precede String(key) no grafo de Busca.
 	//private Integer pi[] ;
 
-	private HashMap<T, Integer> d;//timestamp de descoberta de T.
+	private HashMap<String, Integer> d;//timestamp de descoberta de String.
 	//private Integer d[];
-	private HashMap<T,Integer> f;//Timestamp de término da exploração de T e vértices adjacentes a T.
+	private HashMap<String,Integer> f;//Timestamp de término da exploração de String e vértices adjacentes a String.
 	//private Integer f[];
 
 
@@ -51,8 +51,8 @@ public class Grafo <T extends Comparable<T>>{
 	private Grafo(Integer nroVertices, boolean orientado) {
 		this.nroVertices = nroVertices;
 		this.orientado = orientado;
-		this.verticesOld = new HashMap<T,List<Adjacencia<T>>>();
-		this.vertices = new HashMap<T,Node<T>>();
+		this.verticesOld = new HashMap<String,List<Adjacencia>>();
+		this.vertices = new HashMap<String,Node>();
 	}
 
 	public Grafo() {
@@ -81,41 +81,41 @@ public class Grafo <T extends Comparable<T>>{
 	//Insere uma aresta no grafo.
 	//Pré-condições: a != null;
 	//Pós-condições: nenhuma
-	public void inserir (Aresta<T> a) {
+	public void inserir (Aresta a) {
 
 		if(a == null) {//cancela se a == null
 			return;
 		}
 		if(verticesOld.containsKey(a.getV())) {
-			verticesOld.get(a.getV()).add(new Adjacencia<T>(a.getW(),a.getPeso()));
+			verticesOld.get(a.getV()).add(new Adjacencia(a.getW(),a.getPeso()));
 		}else {
-			List<Adjacencia<T>> aux = new LinkedList<Adjacencia<T>>();
-			aux.add(new Adjacencia<T>(a.getW(),a.getPeso()));
+			List<Adjacencia> aux = new LinkedList<Adjacencia>();
+			aux.add(new Adjacencia(a.getW(),a.getPeso()));
 			verticesOld.put(a.getV(),aux);
 			this.nroVertices++;
 		}
 		Collections.sort(verticesOld.get(a.getV()));
 
 		if(!verticesOld.containsKey(a.getW())) {//se n tem na lista do vertice, precisa criar ele
-			List<Adjacencia<T>> aux = new LinkedList<Adjacencia<T>>();
-			//			aux.add(new Adjacencia<T>(a.getV(),a.getPeso()));
+			List<Adjacencia> aux = new LinkedList<Adjacencia>();
+			//			aux.add(new Adjacencia<String>(a.getV(),a.getPeso()));
 			verticesOld.put(a.getW(),aux);
 			this.nroVertices++;
 		}
 
 		if(!orientado) {
-			verticesOld.get(a.getW()).add(new Adjacencia<T>(a.getV(),a.getPeso()));
+			verticesOld.get(a.getW()).add(new Adjacencia(a.getV(),a.getPeso()));
 			Collections.sort(verticesOld.get(a.getW()));
 		}
 
 	}
 
-	public Node<T> getNode(T key){
+	public Node getNode(String key){
 		return this.vertices.get(key);
 	}
 
 
-	public void inserir (Node<T> origem,Node<T> destino, int weight ) {
+	public void inserir (Node origem,Node destino, int weight ) {
 
 		if(vertices.containsKey(origem.getId())) {//se origem já existe no grafo, simplesmente adicione a aresta ao nó.
 			vertices.get(origem.getId()).addBranch(weight, destino);
@@ -143,7 +143,7 @@ public class Grafo <T extends Comparable<T>>{
 	//Visita o vértice indice
 	//Pré-condições: v != null, indice >= 0, visita_vertices != null;
 	//Pós-condições: nenhuma.
-	private void DFS_visit(List<Adjacencia<T>> v, T indice, List<T> verticesVisitados) {
+	private void DFS_visit(List<Adjacencia> v, String indice, List<String> verticesVisitados) {
 		c.replace(indice, Cor.CINZA);
 		//c[indice] = Cor.CINZA;
 		verticesVisitados.add(indice);
@@ -151,7 +151,7 @@ public class Grafo <T extends Comparable<T>>{
 		//d[indice] = timestamp;
 		d.replace(indice, timestamp);
 
-		for (Adjacencia<T> adj : v) {
+		for (Adjacencia adj : v) {
 			if(c.get(adj.getV()) == Cor.BRANCO) {//c[adj.getV()] 
 				pi.replace(adj.getV(), indice);
 				//pi[adj.getV()] = indice;
@@ -168,13 +168,13 @@ public class Grafo <T extends Comparable<T>>{
 	//	//Busca em profundidade
 	//	//pré-requisitos: origem >= 0
 	//	//Pós-requisitos: lista na ordem da visitação dos vértices.
-	public List<T> DFS(T origem){
-		List<T> verticesVisitados = new ArrayList<T>();
+	public List<String> DFS(String origem){
+		List<String> verticesVisitados = new ArrayList<String>();
 
-		c = new HashMap<T,Cor>();
-		pi = new HashMap<T, T>();
-		d = new HashMap<T,Integer>();
-		f = new HashMap<T,Integer>();
+		c = new HashMap<String,Cor>();
+		pi = new HashMap<String, String>();
+		d = new HashMap<String,Integer>();
+		f = new HashMap<String,Integer>();
 
 
 		this.verticesOld.forEach((key, value) -> {
@@ -191,7 +191,7 @@ public class Grafo <T extends Comparable<T>>{
 	}
 
 
-	private boolean DFS_visit(List<Adjacencia<T>> v, T atual, T destino, List<T> verticesVisitados) {
+	private boolean DFS_visit(List<Adjacencia> v, String atual, String destino, List<String> verticesVisitados) {
 		c.replace(atual, Cor.CINZA);
 		//verticesVisitados.add(atual);
 		timestamp++;
@@ -216,7 +216,7 @@ public class Grafo <T extends Comparable<T>>{
 		//d[indice] = timestamp;
 		d.replace(atual, timestamp);
 
-		for (Adjacencia<T> adj : v) {
+		for (Adjacencia adj : v) {
 			if(c.get(adj.getV()) == Cor.BRANCO) {//c[adj.getV()] 
 				pi.replace(adj.getV(), atual);
 				//pi[adj.getV()] = indice;
@@ -240,13 +240,13 @@ public class Grafo <T extends Comparable<T>>{
 	}
 
 
-	public List<T> DFS(T origem, T destino){
-		List<T> verticesVisitados = new ArrayList<T>();
+	public List<String> DFS(String origem, String destino){
+		List<String> verticesVisitados = new ArrayList<String>();
 
-		c = new HashMap<T,Cor>();
-		pi = new HashMap<T, T>();
-		d = new HashMap<T,Integer>();
-		f = new HashMap<T,Integer>();
+		c = new HashMap<String,Cor>();
+		pi = new HashMap<String, String>();
+		d = new HashMap<String,Integer>();
+		f = new HashMap<String,Integer>();
 
 
 		this.verticesOld.forEach((key, value) -> {
@@ -264,59 +264,11 @@ public class Grafo <T extends Comparable<T>>{
 	}
 
 
-
-	//	//Busca em Largura
-	//	//pré-requisitos: origem >= 0
-	//	//Pós-requisitos: lista na ordem da visitação dos vértices.
-	//	public List<Integer> BFS(Integer origem){
-	//		List<Integer> visita_vertices = new ArrayList<Integer>();
-	//		Queue<Integer> q = new LinkedList<Integer>();
-	//
-	//
-	//		c = new Cor[nroVertices];
-	//		pi = new Integer[nroVertices];
-	//		d = new Integer[nroVertices];
-	//		f = new Integer[nroVertices];
-	//
-	//		for(int i = 0; i < nroVertices; i++) {
-	//			if(i != origem) {
-	//				c[i] = Cor.BRANCO;
-	//				d[i] = Integer.MAX_VALUE;
-	//				pi[i] = -1;
-	//			}
-	//		}
-	//
-	//		c[origem] = Cor.CINZA;
-	//		visita_vertices.add(origem);
-	//		pi[origem] = -1;
-	//		d[origem] = 0;
-	//		q.add(origem);
-	//
-	//		while(!q.isEmpty()) {
-	//			Integer u = q.peek();
-	//			List<Adjacencia> aux = vertices[u];
-	//			for (Adjacencia adjacencia : aux) {
-	//				int info = adjacencia.getV();
-	//				if(c[info] == Cor.BRANCO) {
-	//					c[info] = Cor.CINZA;
-	//					visita_vertices.add(info);
-	//					d[info] = d[u] + 1;
-	//					pi[info] = u;
-	//					q.add(info);
-	//				}
-	//			}
-	//			q.poll();
-	//			c[u] = Cor.PRETO;
-	//		}
-	//
-	//		return visita_vertices;
-	//	}
-
 	//Inicia os vetores auxiliares de acordo com a o vertice de origem.
 	//Pré-condições: origem>=0;
 	//Pós-condições: nenhuma.
-	private void InicializaOrigem(T origem) {
-		vertices.forEach((key, value) -> {
+	private void InicializaOrigem(String origem) {
+		this.vertices.forEach((key, value) -> {
 			d.put(key, Integer.MAX_VALUE);
 			pi.put(key, null);
 		});
@@ -328,9 +280,9 @@ public class Grafo <T extends Comparable<T>>{
 	// Metodo que repetidamente diminui o limite superior do peso do menor caminho.
 	//Pré-condições: a!= null.
 	//Pós-condições: nenhuma.
-	private void Relax(Aresta<T> a) {
-		T verticeW = a.getW();
-		T verticeV = a.getV();
+	private void Relax(Aresta a) {
+		String verticeW = a.getW();
+		String verticeV = a.getV();
 		Integer pesoAresta = a.getPeso();
 		Integer dw = d.get(verticeW);
 		Integer dv = d.get(verticeV);
@@ -345,11 +297,11 @@ public class Grafo <T extends Comparable<T>>{
 	//	//Obtem a aresta formada por u e v (u,v)
 	//	//Pré-condições: u >= 0, v>= 0.
 	//	//Pós-condições: retorna a Aresta.
-	public Aresta<T> getAresta(T u, T v) {
-		List<Adjacencia<T>> l = verticesOld.get(u);
-		for (Adjacencia<T> adjacencia : l) {
+	public Aresta getAresta(String u, String v) {
+		List<Adjacencia> l = verticesOld.get(u);
+		for (Adjacencia adjacencia : l) {
 			if(adjacencia.getV() == v) {
-				return new Aresta<T>(u,v,adjacencia.getPeso());
+				return new Aresta(u,v,adjacencia.getPeso());
 			}
 		}
 		return null;
@@ -360,20 +312,20 @@ public class Grafo <T extends Comparable<T>>{
 	//Preenche o vetor com as arestas de g
 	//Pré-condições: a!= null.
 	//Pós-condições: Retorna |E|, quantidade de arestas
-	private int grafoArestas(Aresta<T> a[]) {
+	private int grafoArestas(Aresta a[]) {
 		int  count = 0;
-//		vertices.forEach((key, value) -> {
-//			for (Edge edge : value.neighbors) {
-//				a[count++] = new Aresta(key, edge.node.getId(),Integer.valueOf(edge.weight));
-//			}
-//
-//		});
+		//		vertices.forEach((key, value) -> {
+		//			for (Edge edge : value.neighbors) {
+		//				a[count++] = new Aresta(key, edge.node.getId(),Integer.valueOf(edge.weight));
+		//			}
+		//	
+		//		});
 
-		for (Map.Entry<T, Node<T>> entry : vertices.entrySet()) {
-			T key = entry.getKey();
-			Node<T> value = entry.getValue();
+		for (Map.Entry<String, Node> entry : vertices.entrySet()) {
+			String key = entry.getKey();
+			Node value = entry.getValue();
 			// Faça algo com a chave (key) e o valor (value)
-			for (Edge edge : value.neighbors) {
+			for (Edge edge : value.vizinhos) {
 				a[count++] = new Aresta(key, edge.node.getId(),Integer.valueOf(edge.weight));
 			}
 		}
@@ -384,22 +336,22 @@ public class Grafo <T extends Comparable<T>>{
 	//	//Obtem as arestas do grafo.
 	//	//Pré-condições: nenhuma.
 	//	//Pós-condições: Lista de arestas pertencentes ao grafo.
-	public List<Aresta<T>> getArestas(){
-		List<Aresta<T>> l = new LinkedList<Aresta<T>>();
+	public List<Aresta> getArestas(){
+		List<Aresta> l = new LinkedList<Aresta>();
 		if(isOrientado()) {
 
 			this.verticesOld.forEach((key, value) -> {					
-				for (Adjacencia<T> adjacencia : this.verticesOld.get(key)) {
-					l.add(new Aresta<T>(key,adjacencia.getV(),adjacencia.getPeso()));
+				for (Adjacencia adjacencia : this.verticesOld.get(key)) {
+					l.add(new Aresta(key,adjacencia.getV(),adjacencia.getPeso()));
 				}
 			});
 
 		}else {
 
 			this.verticesOld.forEach((key, value) -> {
-				for (Adjacencia<T> adjacencia : this.verticesOld.get(key)) {
+				for (Adjacencia adjacencia : this.verticesOld.get(key)) {
 					if(adjacencia.getV().compareTo(key) > 0)
-						l.add(new Aresta<T>(key,adjacencia.getV(),adjacencia.getPeso()));
+						l.add(new Aresta(key,adjacencia.getV(),adjacencia.getPeso()));
 				}
 			});
 
@@ -407,170 +359,78 @@ public class Grafo <T extends Comparable<T>>{
 		return l;
 	}
 
-	//	//Retorna a quantidade de arestas do grafo.
-	//	//Pré-condições: nenhuma.
-	//	//Pós-condições: quantidade de arestas.
-	//	public int countArestas() {
-	//		int count = 0;
-	//		List<Adjacencia> aux;
-	//		for(int i = 0; i < nroVertices; i++) {
-	//			aux = vertices[i];
-	//			for (Adjacencia adjacencia : aux) {
-	//				if(adjacencia.getV() > i) 
-	//					count++;
-	//			}
-	//		}
-	//		return count;
-	//	}
-	//
 	//	//Bellman-Ford: Calcula o menor caminho
 	//	//Pré-condições: origem >=0
 	//	//Pós-condições: caso exista ciclo de peso negativo, o algoritmo retorna false, caso contrário retorna true.
-	public boolean Bellman_Ford(T origem, T destino) {
-		d = new HashMap<T,Integer>();
-		pi = new HashMap<T,T>();
+	public boolean Bellman_Ford(String origem, String destino, List<String> caminho) {
+		d = new HashMap<String,Integer>();
+		pi = new HashMap<String,String>();
 
 		InicializaOrigem(origem);
 
 		Aresta e[] = new Aresta[nroVertices * nroVertices];
-		int count_arestas = grafoArestas(e,true);
+		int count_arestas = grafoArestas(e);
 
 		for(int i = 0; i < nroVertices -1; i++) {
 			for(int j = 0; j < count_arestas; j++) {
 				Relax(e[j]);
 			}
 		}
+
+
 		for(int i = 0; i < count_arestas; i++) {
-			if(d[e[i].getW()] > d[e[i].getV()] + e[i].getPeso() && d[e[i].getV()] != Integer.MAX_VALUE)
+			Integer dw = d.get(e[i].getW());
+			Integer dv= d.get(e[i].getV());
+			Integer pesoAresta = e[i].getPeso();
+			if(dw > dv + pesoAresta && dv != Integer.MAX_VALUE)
 				return false;
 		}
 
 
 		//imprimir os caminhos:
-		System.out.println("Origem: " + origem);
-		for(int i = 0; i < nroVertices; i++) {
-			System.out.print("Destino:  " + i + " dist.:  " + d[i] +  " caminho:  ");
-			printCaminho(i);
-			System.out.println(i);
-		}
 
+		System.out.println("Origem: " + origem);
+		this.vertices.forEach((key, value) -> {
+			System.out.print("Destino:  " + key + " dist.:  " + d.get(key) +  " caminho:  ");
+			printCaminho(key);
+			System.out.println(key);
+		});
+		formaCaminho(destino,caminho);
 
 		return true;
 	}
-	//
-	//	//Encontra o primeiro conjunto que contém o elemento.
-	//	//Pré-condições: elemento != null
-	//	//Pós-condições: retorna o conjunto se encontrar o elemento, retorna null se não encontrar.
-	//	private Conjunto<Integer> findConjuntobyElemento(ArrayList<Conjunto<Integer>> c, Integer elemento){
-	//
-	//		for (Conjunto<Integer> conjunto : c) {
-	//			if(conjunto.contains(elemento)) {
-	//				return conjunto;
-	//			}
-	//		}
-	//		return null;
-	//	}
-	//
-	//	//Kruskal: Calcula a árvore geradora mínima.
-	//	//Pré-condições: nenhuma.
-	//	//Pós-condições: Conjunto com as arestas da árvore geradora mínima.
-	//	public Conjunto<Aresta> KRUSKALL() {
-	//		Aresta a[] = new Aresta[countArestas()];
-	//		int qtdArestas = grafoArestas(a,false);
-	//		Conjunto<Aresta> A = new Conjunto<Aresta>();
-	//		ArrayList<Conjunto<Integer>> conjutosVertices = new ArrayList<Conjunto<Integer>>();
-	//
-	//		for(int i = 0; i < nroVertices; i++) {
-	//			conjutosVertices.add(new Conjunto<Integer>(i));
-	//		}
-	//		Arrays.sort(a);
-	//
-	//		for(int i = 0; i < qtdArestas; i++){
-	//			Conjunto<Integer> u = findConjuntobyElemento(conjutosVertices, a[i].getV());
-	//			Conjunto<Integer> v = findConjuntobyElemento(conjutosVertices, a[i].getW());
-	//
-	//			if(!u.equals(v)) {
-	//				A.uniao(new Conjunto<Aresta>(a[i]));
-	//				u.uniao(v);
-	//				conjutosVertices.remove(v);
-	//
-	//			}
-	//		}
-	//		return A;
-	//	}
-	//
-	//
-	//	//Prim: calcula a árvore geradora mínima.
-	//	//Pré-condições: origem >= 0;
-	//	//Pós-condições: lista com as arestas da árvore geradora mínima.
-	//	public List<Aresta> Prim(int origem){
-	//		List<Aresta> l = new LinkedList<Aresta>();
-	//		Queue<Integer> q = new LinkedList<Integer>();
-	//		Integer key[] = new Integer[nroVertices];
-	//		pi = new Integer[nroVertices];
-	//
-	//		q.add(origem);
-	//		for(int i = 0; i < nroVertices; i++) {
-	//			if(i != origem)
-	//				q.add(i);
-	//			key[i] = Integer.MAX_VALUE;
-	//		}
-	//
-	//		key[origem] = 0;
-	//		pi[origem] = -1;
-	//
-	//
-	//
-	//		while(!q.isEmpty()) {
-	//			Integer u = q.poll();
-	//			for(Adjacencia adj : vertices[u]) {
-	//				Integer v = adj.getV();
-	//				Integer w = getAresta(u,v).getPeso();
-	//				if(q.contains(v) &&  w < key[v]) {
-	//					pi[v] = u;
-	//					key[v] = w;
-	//				}
-	//			}
-	//
-	//			Collections.sort((List<Integer>)q, new Comparator<Integer>() {
-	//				@Override
-	//				public int compare(Integer i1, Integer i2) {
-	//					if(key[i1] < key[i2]) {
-	//						return -1;
-	//					}else if(key[i1] > key[i2])
-	//						return 1;
-	//					return 0;
-	//				}
-	//			});
-	//		}
-	//		for(int i = 0; i < nroVertices; i++) {
-	//			if( pi[i] != null && pi[i] != -1) {
-	//				l.add(getAresta(i, pi[i]));
-	//			}
-	//		}
-	//
-	//		return l;
-	//	}
-	//
-	//
-	//	//imprime o caminho a partir de n.
-	//	//Pré-condições: n >=0
-	//	//Pós-condições: nenhuma.
-	//	private void printCaminho(int n) {
-	//		if(pi[n] != -1) {
-	//			printCaminho(pi[n]);
-	//			System.out.print(pi[n] + " ");
-	//		}
-	//	}
-	//
+
+
+	//imprime o caminho a partir do vértice n.
+	//Pré-condições: n >=0
+	//Pós-condições: nenhuma.
+	private void printCaminho(String n) {
+		String piN = pi.get(n);
+		if(piN != null) {
+			printCaminho(piN);
+			System.out.print(piN + " ");
+		}
+	}
+	
+	//Forma o caminho a partir do vértice s.
+	//Pré-condições: caminho é lista de String instanciada e inicializada.
+	//Pós-condiçoes: nenhuma.
+	private void formaCaminho(String s, List<String> caminho) {
+		String piS = pi.get(s);
+		if(piS != null) {
+			formaCaminho(piS,caminho);
+			caminho.add(piS);
+		}
+	}
+
 	//imprime o grafo
 	//Pré-condições: nenhuma.
 	//Pós-condições: nenhuma.
 	public void imprimirGrafo() {
 		this.verticesOld.forEach((key, value) -> {
 			System.out.println(key);
-			for (Adjacencia<T> adjacencia : value) {
-				System.out.println(new Aresta<T>(key,adjacencia.getV(),adjacencia.getPeso()));
+			for (Adjacencia adjacencia : value) {
+				System.out.println(new Aresta(key,adjacencia.getV(),adjacencia.getPeso()));
 			}	      
 		});
 
@@ -582,8 +442,8 @@ public class Grafo <T extends Comparable<T>>{
 	public void desenhaGrafo(String nome_arquivo) {
 		MutableGraph G = mutGraph(nome_arquivo).setDirected(this.isOrientado());
 
-		List<Aresta<T>> aux = this.getArestas();
-		for (Aresta<T> aresta : aux){
+		List<Aresta> aux = this.getArestas();
+		for (Aresta aresta : aux){
 			Link a = mutNode(aresta.getW().toString()).linkTo();
 			a = a.with(Style.BOLD, Label.of(aresta.getPeso().toString()), Color.BLACK);
 			G.add(mutNode(aresta.getV().toString()).addLink(a));
@@ -601,13 +461,13 @@ public class Grafo <T extends Comparable<T>>{
 	//	//Desenha o grafo
 	//	//Pré-condições: nome_arquivo != null, l != null;
 	//	//Pós-condições: nenhuma
-	public void desenhaGrafo(String nome_arquivo,List<Aresta<T>> l) {
+	public void desenhaGrafo(String nome_arquivo,List<Aresta> l) {
 		MutableGraph G = mutGraph(nome_arquivo).setDirected(this.isOrientado());
 
-		List<Aresta<T>> aux = this.getArestas();
-		for (Aresta<T> aresta : aux){
+		List<Aresta> aux = this.getArestas();
+		for (Aresta aresta : aux){
 			Link a = mutNode(aresta.getW().toString()).linkTo();
-			if(l.contains(aresta) || l.contains(new Aresta<T>(aresta.getW(),aresta.getV(),aresta.getPeso()))) {
+			if(l.contains(aresta) || l.contains(new Aresta(aresta.getW(),aresta.getV(),aresta.getPeso()))) {
 				a = a.with(Style.BOLD, Label.of(aresta.getPeso().toString()), Color.RED);
 
 			}else {
