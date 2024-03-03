@@ -3,31 +3,31 @@ package classes;
 //Classe que representa uma Aresta.
 public class Aresta implements Comparable<Aresta> {
 
-	private String v;
-	private String w;
+	private String src;
+	private String dst;
 	private Integer peso;
 	
 	//Construtor.
 	//Pré-condições: v >= 0, w >= 0, peso != null.
 	//Pós-condições: nenhuma.
-	public Aresta(String v, String w, Integer peso) {
-		this.v = v;
-		this.w = w;
+	public Aresta(String src, String dst, Integer peso) {
+		this.src = src;
+		this.dst = dst;
 		this.peso = peso;
 	}
 
 	//Obtém o vértice v da aresta.
 	//Pré-condições: nenhuma.
 	//Pós-condições: vértice v.
-	public String getV() {
-		return v;
+	public String getSrc() {
+		return src;
 	}
 
 	//Obtém o vértice w da aresta.
 	//Pré-condições: nenhuma.
 	//Pós-condições: vértice w.
-	public String getW() {
-		return w;
+	public String getDst() {
+		return dst;
 	}
 
 	//Obtém o peso da aresta.
@@ -42,7 +42,7 @@ public class Aresta implements Comparable<Aresta> {
 	//Pós-condições: String representando uma aresta.
 	@Override
 	public String toString() {
-		return "(" + v + ", " + w + ")";
+		return "(" + src + ", " + dst + ")";
 	}
 
 	//Compara duas arestas.
@@ -64,7 +64,7 @@ public class Aresta implements Comparable<Aresta> {
 	@Override
 	public boolean equals(Object obj) {
 		Aresta a = (Aresta) obj;
-		return (this.v.equals(a.v) && this.w.equals(a.w) && this.peso.equals(a.peso));
+		return (a != null && this.src.equals(a.src) && this.dst.equals(a.dst) && this.peso.equals(a.peso));
 	}
 
 

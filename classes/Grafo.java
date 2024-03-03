@@ -6,13 +6,12 @@ import static guru.nidi.graphviz.model.Factory.mutNode;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
-import classes.Node.Edge;
 import guru.nidi.graphviz.attribute.Color;
 import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.Style;
@@ -27,22 +26,15 @@ enum Cor {BRANCO,CINZA,PRETO};//enumerado para as cores dos algoritmos DFS e BFS
 
 //Classe que representa um grafo.
 public class Grafo {
-	private HashMap<String,List<Adjacencia>> verticesOld;
-
-
 	private Integer nroVertices;
 	private boolean orientado;
 	private Integer timestamp = 0;
 	private HashMap<String,Cor> c;
-	//private Cor c[];
-	private HashMap<String, Node> vertices;
+	private Map<String, Node> vertices;
 	private HashMap<String,String> pi; //Indica que String(value) precede String(key) no grafo de Busca.
-	//private Integer pi[] ;
-
 	private HashMap<String, Integer> d;//timestamp de descoberta de String.
-	//private Integer d[];
 	private HashMap<String,Integer> f;//Timestamp de término da exploração de String e vértices adjacentes a String.
-	//private Integer f[];
+
 
 
 	//Construtor do grafo.
@@ -51,8 +43,8 @@ public class Grafo {
 	private Grafo(Integer nroVertices, boolean orientado) {
 		this.nroVertices = nroVertices;
 		this.orientado = orientado;
-		this.verticesOld = new HashMap<String,List<Adjacencia>>();
 		this.vertices = new HashMap<String,Node>();
+		this.vertices = new  TreeMap<String,Node>();
 	}
 
 	public Grafo() {
@@ -78,42 +70,9 @@ public class Grafo {
 		return orientado;
 	}
 
-	//Insere uma aresta no grafo.
-	//Pré-condições: a != null;
-	//Pós-condições: nenhuma
-	public void inserir (Aresta a) {
-
-		if(a == null) {//cancela se a == null
-			return;
-		}
-		if(verticesOld.containsKey(a.getV())) {
-			verticesOld.get(a.getV()).add(new Adjacencia(a.getW(),a.getPeso()));
-		}else {
-			List<Adjacencia> aux = new LinkedList<Adjacencia>();
-			aux.add(new Adjacencia(a.getW(),a.getPeso()));
-			verticesOld.put(a.getV(),aux);
-			this.nroVertices++;
-		}
-		Collections.sort(verticesOld.get(a.getV()));
-
-		if(!verticesOld.containsKey(a.getW())) {//se n tem na lista do vertice, precisa criar ele
-			List<Adjacencia> aux = new LinkedList<Adjacencia>();
-			//			aux.add(new Adjacencia<String>(a.getV(),a.getPeso()));
-			verticesOld.put(a.getW(),aux);
-			this.nroVertices++;
-		}
-
-		if(!orientado) {
-			verticesOld.get(a.getW()).add(new Adjacencia(a.getV(),a.getPeso()));
-			Collections.sort(verticesOld.get(a.getW()));
-		}
-
-	}
-
 	public Node getNode(String key){
 		return this.vertices.get(key);
 	}
-
 
 	public void inserir (Node origem,Node destino, int weight ) {
 
@@ -122,12 +81,12 @@ public class Grafo {
 		}else {//senão adicione a aresta ao nó e adicione o nó ao grafo!
 			origem.addBranch(weight, destino);//adiciona a aresta ao nó origem.
 			vertices.put(origem.getId(), origem);//adiciona o nó ao hashMap do grafo.
-			//this.nroVertices++;
+			this.nroVertices++;
 		}
 
 		if(!vertices.containsKey(destino.getId())) {//se destino n está na lista dos vertices, precisa adicioná-lo
 			vertices.put(destino.getId(),destino);
-			//this.nroVertices++;
+			this.nroVertices++;
 		}
 
 		if(!orientado) {//se não é orientado, precisa adicionar aresta do destino à origem também.
@@ -145,23 +104,18 @@ public class Grafo {
 	//Pós-condições: nenhuma.
 	private void DFS_visit(List<Adjacencia> v, String indice, List<String> verticesVisitados) {
 		c.replace(indice, Cor.CINZA);
-		//c[indice] = Cor.CINZA;
 		verticesVisitados.add(indice);
 		timestamp++;
-		//d[indice] = timestamp;
 		d.replace(indice, timestamp);
 
 		for (Adjacencia adj : v) {
 			if(c.get(adj.getV()) == Cor.BRANCO) {//c[adj.getV()] 
 				pi.replace(adj.getV(), indice);
-				//pi[adj.getV()] = indice;
-				DFS_visit(verticesOld.get(adj.getV()), adj.getV(), verticesVisitados);
+				DFS_visit(vertices.get(adj.getV()).nosAdjacentes, adj.getV(), verticesVisitados);
 			}
 		}
-		//c[indice] = Cor.PRETO;
 		c.replace(indice, Cor.PRETO);
 		timestamp++;
-		//f[indice] = timestamp;
 		f.replace(indice, timestamp);
 	}
 
@@ -177,7 +131,7 @@ public class Grafo {
 		f = new HashMap<String,Integer>();
 
 
-		this.verticesOld.forEach((key, value) -> {
+		this.vertices.forEach((key, value) -> {
 			c.put(key, Cor.BRANCO);
 			pi.put(key, null);
 			d.put(key, 0);
@@ -186,7 +140,7 @@ public class Grafo {
 
 		timestamp = 0;
 
-		DFS_visit(verticesOld.get(origem), origem,verticesVisitados);
+		DFS_visit(vertices.get(origem).nosAdjacentes, origem,verticesVisitados);
 		return verticesVisitados;
 	}
 
@@ -197,12 +151,6 @@ public class Grafo {
 		timestamp++;
 
 		System.out.println("Visitando " + atual);
-		//			try {
-		//				//Thread.sleep(3000);
-		//			} catch (InterruptedException e) {
-		//				// TODO Auto-generated catch block
-		//				e.printStackTrace();
-		//			}
 
 		if(atual.equals(destino)) {
 			verticesVisitados.add(0,atual);
@@ -213,28 +161,22 @@ public class Grafo {
 			return true;
 		}
 
-		//d[indice] = timestamp;
 		d.replace(atual, timestamp);
 
 		for (Adjacencia adj : v) {
 			if(c.get(adj.getV()) == Cor.BRANCO) {//c[adj.getV()] 
 				pi.replace(adj.getV(), atual);
-				//pi[adj.getV()] = indice;
-				if(DFS_visit(verticesOld.get(adj.getV()), adj.getV(),destino, verticesVisitados)) {
-
+				if(DFS_visit(vertices.get(adj.getV()).nosAdjacentes, adj.getV(),destino, verticesVisitados)) {
 					verticesVisitados.add(0,atual);//adiciona o vértice atual e retorna true.
 					c.replace(atual, Cor.PRETO);
 					timestamp++;
-					//f[indice] = timestamp;
 					f.replace(atual, timestamp);
 					return true;
 				}
 			}
 		}
-		//c[indice] = Cor.PRETO;
 		c.replace(atual, Cor.PRETO);
 		timestamp++;
-		//f[indice] = timestamp;
 		f.replace(atual, timestamp);
 		return false;
 	}
@@ -249,7 +191,7 @@ public class Grafo {
 		f = new HashMap<String,Integer>();
 
 
-		this.verticesOld.forEach((key, value) -> {
+		this.vertices.forEach((key, value) -> {
 			c.put(key, Cor.BRANCO);
 			pi.put(key, null);
 			d.put(key, 0);
@@ -259,7 +201,7 @@ public class Grafo {
 
 		timestamp = 0;
 
-		DFS_visit(verticesOld.get(origem), origem, destino,verticesVisitados);
+		DFS_visit(vertices.get(origem).nosAdjacentes, origem, destino,verticesVisitados);
 		return verticesVisitados;
 	}
 
@@ -281,8 +223,8 @@ public class Grafo {
 	//Pré-condições: a!= null.
 	//Pós-condições: nenhuma.
 	private void Relax(Aresta a) {
-		String verticeW = a.getW();
-		String verticeV = a.getV();
+		String verticeW = a.getDst();
+		String verticeV = a.getSrc();
 		Integer pesoAresta = a.getPeso();
 		Integer dw = d.get(verticeW);
 		Integer dv = d.get(verticeV);
@@ -293,14 +235,14 @@ public class Grafo {
 			pi.replace(verticeW, verticeV);
 		}
 	}
-	//
+
 	//	//Obtem a aresta formada por u e v (u,v)
 	//	//Pré-condições: u >= 0, v>= 0.
 	//	//Pós-condições: retorna a Aresta.
 	public Aresta getAresta(String u, String v) {
-		List<Adjacencia> l = verticesOld.get(u);
+		List<Adjacencia> l = vertices.get(u).nosAdjacentes;
 		for (Adjacencia adjacencia : l) {
-			if(adjacencia.getV() == v) {
+			if(adjacencia.getV().equals(v)) {
 				return new Aresta(u,v,adjacencia.getPeso());
 			}
 		}
@@ -314,19 +256,12 @@ public class Grafo {
 	//Pós-condições: Retorna |E|, quantidade de arestas
 	private int grafoArestas(Aresta a[]) {
 		int  count = 0;
-		//		vertices.forEach((key, value) -> {
-		//			for (Edge edge : value.neighbors) {
-		//				a[count++] = new Aresta(key, edge.node.getId(),Integer.valueOf(edge.weight));
-		//			}
-		//	
-		//		});
-
 		for (Map.Entry<String, Node> entry : vertices.entrySet()) {
 			String key = entry.getKey();
 			Node value = entry.getValue();
 			// Faça algo com a chave (key) e o valor (value)
-			for (Edge edge : value.vizinhos) {
-				a[count++] = new Aresta(key, edge.node.getId(),Integer.valueOf(edge.weight));
+			for (Adjacencia adjacencia : value.nosAdjacentes) {
+				a[count++] = new Aresta(key, adjacencia.getV(),adjacencia.getPeso());
 			}
 		}
 
@@ -340,16 +275,16 @@ public class Grafo {
 		List<Aresta> l = new LinkedList<Aresta>();
 		if(isOrientado()) {
 
-			this.verticesOld.forEach((key, value) -> {					
-				for (Adjacencia adjacencia : this.verticesOld.get(key)) {
+			this.vertices.forEach((key, value) -> {					
+				for (Adjacencia adjacencia : this.vertices.get(key).nosAdjacentes) {
 					l.add(new Aresta(key,adjacencia.getV(),adjacencia.getPeso()));
 				}
 			});
 
 		}else {
 
-			this.verticesOld.forEach((key, value) -> {
-				for (Adjacencia adjacencia : this.verticesOld.get(key)) {
+			this.vertices.forEach((key, value) -> {
+				for (Adjacencia adjacencia : this.vertices.get(key).nosAdjacentes) {
 					if(adjacencia.getV().compareTo(key) > 0)
 						l.add(new Aresta(key,adjacencia.getV(),adjacencia.getPeso()));
 				}
@@ -379,8 +314,8 @@ public class Grafo {
 
 
 		for(int i = 0; i < count_arestas; i++) {
-			Integer dw = d.get(e[i].getW());
-			Integer dv= d.get(e[i].getV());
+			Integer dw = d.get(e[i].getDst());
+			Integer dv= d.get(e[i].getSrc());
 			Integer pesoAresta = e[i].getPeso();
 			if(dw > dv + pesoAresta && dv != Integer.MAX_VALUE)
 				return false;
@@ -396,7 +331,8 @@ public class Grafo {
 			System.out.println(key);
 		});
 		formaCaminho(destino,caminho);
-
+		caminho.add(destino);
+		System.out.println(caminho);
 		return true;
 	}
 
@@ -427,9 +363,11 @@ public class Grafo {
 	//Pré-condições: nenhuma.
 	//Pós-condições: nenhuma.
 	public void imprimirGrafo() {
-		this.verticesOld.forEach((key, value) -> {
-			System.out.println(key);
-			for (Adjacencia adjacencia : value) {
+		System.out.println("Imprimindo  Grafo: ");
+		System.out.println("Número de vértices: " + this.nroVertices);
+		this.vertices.forEach((key, value) -> {
+			System.out.println("Vértice: "  + key);
+			for (Adjacencia adjacencia : value.nosAdjacentes) {
 				System.out.println(new Aresta(key,adjacencia.getV(),adjacencia.getPeso()));
 			}	      
 		});
@@ -444,14 +382,14 @@ public class Grafo {
 
 		List<Aresta> aux = this.getArestas();
 		for (Aresta aresta : aux){
-			Link a = mutNode(aresta.getW().toString()).linkTo();
+			Link a = mutNode(aresta.getDst().toString()).linkTo();
 			a = a.with(Style.BOLD, Label.of(aresta.getPeso().toString()), Color.BLACK);
-			G.add(mutNode(aresta.getV().toString()).addLink(a));
+			G.add(mutNode(aresta.getSrc().toString()).addLink(a));
 
 		}
 
 		try {
-			Graphviz.fromGraph(G).width(200).render(Format.PNG).toFile(new File("desenhos/" + nome_arquivo + ".png"));
+			Graphviz.fromGraph(G).width(1080).height(1920).render(Format.PNG).toFile(new File("desenhos/" + nome_arquivo + ".png"));
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -466,14 +404,14 @@ public class Grafo {
 
 		List<Aresta> aux = this.getArestas();
 		for (Aresta aresta : aux){
-			Link a = mutNode(aresta.getW().toString()).linkTo();
-			if(l.contains(aresta) || l.contains(new Aresta(aresta.getW(),aresta.getV(),aresta.getPeso()))) {
+			Link a = mutNode(aresta.getDst().toString()).linkTo();
+			if(l.contains(aresta) || l.contains(new Aresta(aresta.getDst(),aresta.getSrc(),aresta.getPeso()))) {
 				a = a.with(Style.BOLD, Label.of(aresta.getPeso().toString()), Color.RED);
 
 			}else {
 				a = a.with(Style.BOLD, Label.of(aresta.getPeso().toString()), Color.BLACK);
 			}
-			G.add(mutNode(aresta.getV().toString()).addLink(a));
+			G.add(mutNode(aresta.getSrc().toString()).addLink(a));
 		}
 
 		try {

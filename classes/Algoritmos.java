@@ -48,7 +48,6 @@ public class Algoritmos  {
 				String verticeV = vertices[0].trim();
 				String verticeW = vertices[1].trim();
 				Integer distancia = Integer.valueOf(vertices[2].trim());
-				grafo.inserir(new Aresta(verticeV,verticeW,distancia));
 				grafo.inserir(new Node(verticeV),new Node(verticeW) , distancia);
 			}
 			else if(nome.equalsIgnoreCase("ponto_inicial")) {
@@ -62,7 +61,7 @@ public class Algoritmos  {
 		grafo.getNode(verticeOrigem).setG(0);
 		grafo.imprimirGrafo();
 		grafo.desenhaGrafo("grafo-carregado");
-
+		
 		buffRead.close();
 
 	}
@@ -70,9 +69,8 @@ public class Algoritmos  {
 	//pior solução: Busca em profundidade
 	public float piorSolucaoDFS() {
 		long tempoInicial = System.currentTimeMillis();
-		//grafo.imprimirGrafo();
 		List<String> listaCaminho = grafo.DFS(this.verticeOrigem,this.verticeDestino);//retorna a lista de pontos visitados
-		float tempoFinal = ( (float) (System.currentTimeMillis() - tempoInicial)/1000);
+		float tempoFinal = ( (float) (System.currentTimeMillis() - tempoInicial));
 		System.out.println("Nós do trajeto: ");
 		for (String string : listaCaminho) {
 			System.out.print("(" + string + ")" + " ");
@@ -92,7 +90,7 @@ public class Algoritmos  {
 	public float melhorSolucaoAEstrela(){
 		long tempoInicial = System.currentTimeMillis();
 		Node n = aStar();
-		float tempoFinal = ( (float) (System.currentTimeMillis() - tempoInicial)/1000);
+		float tempoFinal = ( (float) (System.currentTimeMillis() - tempoInicial));
 		List<Aresta> arestas = new LinkedList<Aresta>();
 		//forma as arestas que foram percorridas
 		if(n==null)
@@ -177,7 +175,7 @@ public class Algoritmos  {
 		//grafo.imprimirGrafo();
 		List<String> listaCaminho = new LinkedList<String>();
 		grafo.Bellman_Ford(this.verticeOrigem,this.verticeDestino,listaCaminho);//retorna a lista de pontos visitados
-		float tempoFinal = ( (float) (System.currentTimeMillis() - tempoInicial)/1000);
+		float tempoFinal = ( (float) (System.currentTimeMillis() - tempoInicial));
 		System.out.println("Nós do trajeto: ");
 		for (String string : listaCaminho) {
 			System.out.print("(" + string + ")" + " ");
@@ -188,6 +186,7 @@ public class Algoritmos  {
 		for (int i = 0; i < listaCaminho.size() - 1; i++) {
 			arestas.add(grafo.getAresta(listaCaminho.get(i),listaCaminho.get(i+1)));
 		}
+		System.out.println("Arestas da solução BELLMAN-FORD: " + arestas);
 		//desenha o grafo com o percorrimento
 		grafo.desenhaGrafo("bellmanFord", arestas);
 		return tempoFinal;
@@ -226,14 +225,14 @@ public class Algoritmos  {
 
 			switch(option) {
 			case 1:
-				System.out.println("tempo:"+algoritmos.piorSolucaoDFS()+ " segundos");
+				System.out.println("tempo:"+algoritmos.piorSolucaoDFS()+ " milisegundos");
 				break;
 			case 2:
 				
-				System.out.println("tempo:"+algoritmos.melhorSolucaoAEstrela()+ " segundos");
+				System.out.println("tempo:"+algoritmos.melhorSolucaoAEstrela()+ " milisegundos");
 				break;
 			case 3:
-				System.out.println("tempo:"+algoritmos.bellmanFord()+ " segundos");
+				System.out.println("tempo:"+algoritmos.bellmanFord()+ " milisegundos");
 				break;
 			case 4:
 				System.out.println("Digite o nome do arquivo a processar!");
@@ -258,7 +257,7 @@ public class Algoritmos  {
 			default:
 				System.out.println("Escolha uma opção válida!");
 			}
-		}while(option != 4);
+		}while(option != 5);
 		c.close();
 	}
 

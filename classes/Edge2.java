@@ -1,16 +1,24 @@
 package classes;
 
-public class Edge2 <T extends > {
+public class Edge2 {
 	
 
-    private int weight;
-    private Node<T> node;
+    private int peso;
+    private Node node;
 	
-        Edge2(int weight,Node<T> node){
-              this.weight = weight;
+        Edge2(int peso,Node node){
+              this.peso = peso;
               this.node = node;
         }
         
+        public int getPeso() {
+        	return this.peso;
+        }
+        
+        
+        public Node getNode() {
+        	return this.node;
+        }
      
 
         
